@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lee's Book Shop</title>
+    <link rel='stylesheet' href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+    Welcome to my book store!
+
+    <h3>Hours of Operation:</h3>
+    <strong>Today: {{ todays_hours.open }} - {{ todays_hours.close }}</strong> <!-- use {{ variable }} to display context info-->
+    <table>
+        <thead>
+            <tr>
+                <td></td>
+                <td>open</td>
+                <td>close</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% comment %}
+                {% functionality %} to execute functionality
+            {% endcomment %}
+
+            {% for hour in hours_of_operation %}
+                <tr>
+                    <td> {{ hour.day }} </td>
+                    <td> {{ hour.open }} </td>
+                    <td> {{ hour.close }} </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br/>
+    <h3>Our Python books DON'T have snakes on them!!</h3>
+</body>
+</html>
