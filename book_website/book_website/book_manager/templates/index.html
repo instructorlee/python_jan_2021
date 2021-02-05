@@ -18,11 +18,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
+                {%  if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/exchange">Book Exchange</a>
+                    </li>
+                {% endif %}
+
                 <li class="nav-item">
-                    <a class="nav-link" href="/book/add">Add Book <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/book">Books <span class="sr-only">(current)</span></a>
+                    {% if user %}
+                        <a class="nav-link" href="/logout">Logout</a>
+                    {%  else %}
+                        <a class="nav-link" href="{% url 'login' %}">Login / Register</a>
+                    {%  endif %}
+
                 </li>
             </ul>
         </div>

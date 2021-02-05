@@ -1,5 +1,7 @@
 from datetime import datetime
 from django.shortcuts import render, redirect
+from .models import Book, User
+from django.contrib import messages
 
 # 2
 HOURS_OF_OPERATION = [
@@ -42,12 +44,10 @@ def add_book_view(request):
 
 
 def book_view(request):
-    check_books_list(request)
-
-    print(request.session['books'])
+    # removed check_books_list(request)
 
     return render(request, 'book.html', {
-        'books': request.session['books']
+        'books': Book.objects.all()
     })
 
 
@@ -57,14 +57,53 @@ def check_books_list(request):
 
 
 def index_view(request):
-    day_of_week = datetime.today().weekday()  # returns a number 0 - 7; 0 = Monday
+    day_of_week = datetime.today().weekday()
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
 
     context = {
         'todays_hours': HOURS_OF_OPERATION[day_of_week],
-        'hours_of_operation': HOURS_OF_OPERATION
+        'hours_of_operation': HOURS_OF_OPERATION,
+        'user': user
     }
 
     return render(request, 'index.html', context)
+
+
+def login_view(request):
+    if request.method == 'POST':
+        user = User.objects.authenticate(request.POST.get('email', None), request.POST.get('password', None))
+        if user:
+            request.session['user_id'] = user.id
+
+            return redirect('index')
+
+        else:
+            messages.add_message(request, messages.ERROR, 'invalid credentials')
+            return redirect('login')
+
+    else:
+        return render(request, 'login.html')
+
+
+def logout_view(request):
+    request.session.clear()
+    return redirect('index')
+
+
+def register_view(request):
+    errors = User.objects.validate(request.POST)
+
+    if errors:
+        for e in errors.values():
+            messages.error(request, e)
+        return redirect('/login')
+
+    else:
+        user = User.objects.register(request.POST)
+
+        request.session['user_id'] = user.id
+
+        return redirect('index')
 
 
 def view_book(request, book_id):
