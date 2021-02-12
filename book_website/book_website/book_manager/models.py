@@ -27,6 +27,8 @@ class Book(models.Model):
     title = models.CharField(max_length=100)  # options: blank, null, default
     author = models.CharField(max_length=100)
 
+    objects = BookManager()
+
     owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='books', null=True)  # in the dB, this stores the ID of the User
     # what kind of relationship is being created?
 

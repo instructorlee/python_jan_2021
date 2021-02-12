@@ -17,29 +17,29 @@ HOURS_OF_OPERATION = [
 
 def add_book_view(request):
 
+    # check if a user is logged in
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
     if request.method == 'POST':
-        check_books_list(request)
+        errors = Book.objects.validate(request.POST)
+        if errors:
+            for e in errors.values():
+                messages.error(request, e)
+            return redirect('/book/add')
 
-        # simple data validation
-        title = request.POST.get('title', None)  # request.POST['title']
-        author = request.POST.get('author', None)
+        # save the book to dB
+        book = Book.objects.create(owner=user, title=request.POST.get('title'), author=request.POST.get('author'))
 
-        if not title or not author:
-            return redirect(request, '/add_book')
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '{} by {} has been added'.format(book.title, book.author))
 
-        # save the book
-        request.session['books'].append({
-            'id': len(request.session['books']),
-            'title': title,
-            'author': author
-        })
-        # request.session.save()
+        return redirect('/exchange')
 
-        # print(request.session['books'])
-
-        return redirect('/book')  # always redirect after POST
-
-    else:  # is GET request, return the add book HTML
+    else:
         return render(request, 'add_book.html')
 
 
@@ -54,6 +54,37 @@ def book_view(request):
 def check_books_list(request):
     if 'books' not in request.session:
         request.session['books'] = []
+
+
+def delete_book_view(request, book_id):
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    book = Book.objects.get(id=book_id)
+    if book.owner == user:
+        book.delete()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '{} by {} has been deleted'.format(book.title, book.author))
+    return redirect('exchange')
+
+
+def exchange_view(request):
+
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    available_books = Book.objects.all().exclude(owner=user).exclude(checked_out_to__isnull=False)
+    borrowed_books = Book.objects.filter(checked_out_to=user)
+
+    return render(request, 'exchange_index.html', {
+        'user': user,
+        'available_books': available_books,
+        'borrowed_books': borrowed_books
+    })
 
 
 def index_view(request):
