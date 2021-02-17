@@ -53,11 +53,12 @@
                                 <td>{{ book.author }}</td>
                                 <td>
                                     <a class="btn btn-sm btn-danger" href="{% url 'delete' book_id=book.id %}">delete</a>
+                                    <a class="btn btn-sm btn-primary" href="{% url 'edit' book_id=book.id %}">edit</a> <!-- /edit/10 -->
                                     <br/>
                                     {%  if book.checked_out_to %}
                                         <span class="mt-2">
                                             checked out to {{ book.checked_out_to.first_name }} {{ book.checked_out_to.first_name }}
-
+                                            <a class="btn btn-sm btn-outline-info" href="{% url 'return_book' book_id=book.id %}">return</a>
                                         </span>
                                     {%  endif %}
                                 </td>
@@ -87,7 +88,17 @@
                                     <td>{{ book.author }}</td>
                                     <td>{{ book.owner.first_name }} {{ book.owner.last_name }}</td>
                                     <td>
-
+                                        <a class="btn btn-sm btn-outline-info" href="{% url 'return_book' book_id=book.id %}">return</a> <!-- /return/17 -->
+                                        <a class="btn btn-sm btn-outline-info"
+                                           href="{% url 'like' book_id=book.id %}"
+                                           >
+                                            {% if user in book.likes.all %}
+                                                unlike
+                                            {% else %}
+                                                like
+                                            {% endif %}
+                                            ({{ book.likes.count }})
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -115,7 +126,17 @@
                                 <td>{{ book.author }}</td>
                                 <td>{{ book.owner.first_name }} {{ book.owner.last_name }}</td>
                                 <td>
-
+                                    <a class="btn btn-sm btn-outline-success" href="{% url 'checkout' book_id=book.id %}">checkout</a>
+                                    <a class="btn btn-sm btn-outline-info"
+                                       href="{% url 'like' book_id=book.id %}"
+                                       >
+                                        {% if user in book.likes.all %}
+                                            unlike
+                                        {% else %}
+                                            like
+                                        {% endif %}
+                                        ({{ book.likes.count }})
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}

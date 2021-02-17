@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book</title>
+</head>
+<body>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a href="{% url 'exchange' %}">back</a>
+    <br/><br/>
+
+    <form action="{% url 'edit' book_id=book.id %}" method="POST">
+        {% csrf_token %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong>Book Title:</strong>
+                    </td>
+                    <td>
+                        <input type='text' name='title' value="{{ book.title }}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Author:</strong>
+                    </td>
+                    <td>
+                        <input type='text' name='author' value="{{ book.author }}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button type="sumbit">update book</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</body>
+</html>

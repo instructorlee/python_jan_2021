@@ -71,6 +71,37 @@ def delete_book_view(request, book_id):
     return redirect('exchange')
 
 
+def edit_book_view(request, book_id):
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    book = Book.objects.get(id=book_id)
+
+    if request.method == 'POST':
+        if book.owner != user:
+            request.session.clear()
+            return redirect('index')
+
+        errors = Book.objects.validate(request.POST)
+
+        if errors:
+            for e in errors.values():
+                messages.error(request, e)
+            return redirect(f'/edit/{book_id}')
+
+        book.author = request.POST.get('author', book.author)
+        book.title = request.POST.get('title', book.title)
+        book.save()
+
+        messages.add_message(request, messages.SUCCESS, 'book updated')
+
+        return redirect('exchange')
+
+    else:
+        return render(request, 'edit_book.html', context={'book': Book.objects.get(id=book_id)})
+
+
 def exchange_view(request):
 
     user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
