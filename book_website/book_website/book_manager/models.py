@@ -29,11 +29,13 @@ class Book(models.Model):
 
     objects = BookManager()
 
-    owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='books', null=True)  # in the dB, this stores the ID of the User
+    owner = models.ForeignKey('User', on_delete=models.CASCADE, related_name='my_books', null=True)  # in the dB, this stores the ID of the User
     # what kind of relationship is being created?
 
-    checked_out_to = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, default=None)
+    checked_out_to = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, default=None)  # None == null
     # what kind of relationship is being created?
+
+    likes = models.ManyToManyField('User', related_name='books')
 
     def __str__(self):  # usually only needed if using in admin
         return "{} by {}".format(self.title, self.author)

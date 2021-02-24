@@ -47,18 +47,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for book in user.books.all %}
+                        {% for book in user.my_books.all %}
                             <tr>
                                 <td>{{ book.title }}</td>
                                 <td>{{ book.author }}</td>
                                 <td>
-                                    <a class="btn btn-sm btn-danger" href="{% url 'delete' book_id=book.id %}">delete</a>
-                                    <a class="btn btn-sm btn-primary" href="{% url 'edit' book_id=book.id %}">edit</a> <!-- /edit/10 -->
+                                    <a class="btn btn-sm btn-danger" href="{% url 'delete' book.id %}">delete</a>
+                                    <a class="btn btn-sm btn-primary" href="{% url 'edit' book.id %}">edit</a> <!-- /edit/10 -->
                                     <br/>
                                     {%  if book.checked_out_to %}
                                         <span class="mt-2">
-                                            checked out to {{ book.checked_out_to.first_name }} {{ book.checked_out_to.first_name }}
-                                            <a class="btn btn-sm btn-outline-info" href="{% url 'return_book' book_id=book.id %}">return</a>
+                                            checked out to {{ book.checked_out_to.first_name }} {{ book.checked_out_to.last_name }}
+                                            <a class="btn btn-sm btn-outline-info" href="{% url 'return_book' book.id %}">return</a>
                                         </span>
                                     {%  endif %}
                                 </td>

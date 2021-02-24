@@ -4,6 +4,8 @@ from .models import Book, User
 from django.contrib import messages
 
 # 2
+from ..book_website.decorators import validate_request
+
 HOURS_OF_OPERATION = [
     {'day': 'Sunday', 'open': 'closed', 'close': 'closed'},
     {'day': 'Monday', 'open': '8am', 'close': '5pm'},
@@ -56,6 +58,22 @@ def check_books_list(request):
         request.session['books'] = []
 
 
+def checkout_view(request, book_id):
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    book = Book.objects.get(id=book_id)
+    book.checked_out_to = user
+    book.save()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        '{} by {} has been checked out'.format(book.title, book.author))
+    return redirect('exchange')
+
+
 def delete_book_view(request, book_id):
     user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
     if not user:  # if not, return to index
@@ -71,10 +89,8 @@ def delete_book_view(request, book_id):
     return redirect('exchange')
 
 
-def edit_book_view(request, book_id):
-    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
-    if not user:  # if not, return to index
-        return redirect('index')
+@validate_request
+def edit_book_view(request, user, book_id):
 
     book = Book.objects.get(id=book_id)
 
@@ -131,6 +147,20 @@ def index_view(request):
     return render(request, 'index.html', context)
 
 
+def like_book_view(request, book_id):
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    book = Book.objects.get(id=book_id)
+    if user in book.likes.all():
+        book.likes.remove(user)
+    else:
+        book.likes.add(user)
+
+    return redirect('/exchange')
+
+
 def login_view(request):
     if request.method == 'POST':
         user = User.objects.authenticate(request.POST.get('email', None), request.POST.get('password', None))
@@ -166,6 +196,22 @@ def register_view(request):
         request.session['user_id'] = user.id
 
         return redirect('index')
+
+
+def return_book_view(request, book_id):
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
+
+    book = Book.objects.get(id=book_id)
+    book.checked_out_to = None
+    book.save()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        '{} by {} has been returned'.format(book.title, book.author))
+    return redirect('exchange')
 
 
 def view_book(request, book_id):
