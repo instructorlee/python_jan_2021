@@ -1,10 +1,9 @@
+import json
 from datetime import datetime
 from django.shortcuts import render, redirect
 from .models import Book, User
 from django.contrib import messages
-
-# 2
-from ..book_website.decorators import validate_request
+from django.core import serializers
 
 HOURS_OF_OPERATION = [
     {'day': 'Sunday', 'open': 'closed', 'close': 'closed'},
@@ -89,8 +88,11 @@ def delete_book_view(request, book_id):
     return redirect('exchange')
 
 
-@validate_request
-def edit_book_view(request, user, book_id):
+def edit_book_view(request, book_id):
+
+    user = None if 'user_id' not in request.session else User.objects.get(id=request.session['user_id'])
+    if not user:  # if not, return to index
+        return redirect('index')
 
     book = Book.objects.get(id=book_id)
 
@@ -127,8 +129,9 @@ def exchange_view(request):
     available_books = Book.objects.all().exclude(owner=user).exclude(checked_out_to__isnull=False)
     borrowed_books = Book.objects.filter(checked_out_to=user)
 
-    return render(request, 'exchange_index.html', {
+    return render(request, 'exchange_index_api.html', {
         'user': user,
+        'my_books': json.dumps(json.loads(serializers.serialize('json', user.my_books.all()))),
         'available_books': available_books,
         'borrowed_books': borrowed_books
     })

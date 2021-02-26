@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Exchange</title>
+    <link rel='stylesheet' href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <button class="btn btn-sm btn-outline-success add_btn">add book</button>
+                <a class="btn btn-sm btn-outline-info mlw-2" href="{% url 'logout' %}">logout</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h1>
+                    Hello {{ user.first_name }}!
+                </h1>
+
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2>My Books</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>title</th>
+                            <th>author</th>
+                            <th>actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my_books_list"></tbody>
+                </table>
+            </div>
+        </div>
+        {% if borrowed_books %}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h2>Borrowed Books</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>title</th>
+                                <th>author</th>
+                                <th>owner</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in borrowed_books %}
+                                <tr>
+                                    <td>{{ book.title }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td>{{ book.owner.first_name }} {{ book.owner.last_name }}</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-info" href="{% url 'return_book' book_id=book.id %}">return</a> <!-- /return/17 -->
+                                        <a class="btn btn-sm btn-outline-info"
+                                           href="{% url 'like' book_id=book.id %}"
+                                           >
+                                            {% if user in book.likes.all %}
+                                                unlike
+                                            {% else %}
+                                                like
+                                            {% endif %}
+                                            ({{ book.likes.count }})
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row mt-3">
+            <div class="col-12">
+                <h2>Available Books</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>title</th>
+                            <th>author</th>
+                            <th>owner</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in available_books %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td>{{ book.author }}</td>
+                                <td>{{ book.owner.first_name }} {{ book.owner.last_name }}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-success" href="{% url 'checkout' book_id=book.id %}">checkout</a>
+                                    <a class="btn btn-sm btn-outline-info"
+                                       href="{% url 'like' book_id=book.id %}"
+                                       >
+                                        {% if user in book.likes.all %}
+                                            unlike
+                                        {% else %}
+                                            like
+                                        {% endif %}
+                                        ({{ book.likes.count }})
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="overlay">
+        <div class="container-fluid">
+            <div class="row justify-content-center mt-3">
+                <div id="overlay__inner"   class="col-12 col-md-6">
+                    <h2 id="overlay__header"></h2>
+                    <form>
+
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Book Title:</strong>
+                                    </td>
+                                    <td>
+                                        <input type='text' id='title_input' placeholder="title" name="title"/>
+                                        <div id="title_error" class="overlay__input_error">title must be at least 3 letters</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Author:</strong>
+                                    </td>
+                                    <td>
+                                        <input type='text' id='author_input' placeholder="author" name="author"/>
+                                        <div id="author_error" class="overlay__input_error">author must be at least 3 letters</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <div id="overlay__save_btn" class="btn btn-success">save book</div>
+                                        <button id="overlay__cancel_btn" class="btn btn-outline-danger">cancel</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+        let myBooks = {{ my_books|safe }};
+    </script>
+    <script src="{% static 'js/app.js' %}">
+
+    </script> <!-- must be after jquery load -->
+</body>
+</html>

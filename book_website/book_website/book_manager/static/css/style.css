@@ -2,3 +2,26 @@ body {
     font-size: 1.2em;
 }
 
+#overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, .3);
+}
+
+#overlay__inner{
+    background-color: rgba(255, 255, 255, 1);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+
+.overlay__input_error {
+    display: none;
+    font-size: .9em;
+    color: red;
+}
+

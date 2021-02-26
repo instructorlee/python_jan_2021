@@ -2,7 +2,7 @@ from functools import wraps
 
 from django.http import HttpResponse
 
-from books.models import User
+from book_manager.models import User
 
 
 def validate_request(func):
